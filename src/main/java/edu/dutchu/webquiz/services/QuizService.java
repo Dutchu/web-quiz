@@ -24,26 +24,20 @@ public class QuizService {
     }
 
     public QuizSolveResponseDTO solveQuiz(Long quizId, SolveQuizDTO answer) {
-
-
         QuizSolveResponseDTO result;
         IntStream answers;
         IntStream userAnswers;
-        Optional<Quiz> quiz = Optional.ofNullable(quizRepository.getById(quizId));
-
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
 
         if (answer == null) {
             throw new WrongAnswerFormatException("Answer cannot be null");
         }
 
-        if (quiz.isEmpty()) {
-            throw new QuizNotFoundException("Quiz not found");
-        }
-
-        if (quiz.get().getAnswers() == null) {
+        if (quiz.getAnswers() == null) {
             answers = IntStream.empty();
         } else {
-            answers = Arrays.stream(quiz.get().getAnswers());
+            answers = quiz.getAnswers().stream().mapToInt(Integer::intValue);
         }
 
         userAnswers = Arrays.stream(answer.answer());
@@ -54,7 +48,6 @@ public class QuizService {
             result = new QuizSolveResponseDTO(false, "Try again!");
         }
         return result;
-
     }
 
     private boolean assertIntStreamContains(IntStream answers, IntStream userAnswers) {
@@ -65,23 +58,19 @@ public class QuizService {
     }
 
     public GetQuizDTO getQuizById(Long id) {
-        Optional<Quiz> quiz = Optional.ofNullable(quizRepository.getById(id));
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
 
-        if (quiz.isPresent()) {
-            return quizMapper.toQuizDTO(quiz.get());
-        } else {
-            throw new QuizNotFoundException("Quiz not found");
-        }
-
+        return quizMapper.toQuizDTO(quiz);
     }
 
     public List<GetQuizDTO> getQuizzes() {
-        List<Quiz> quizzes = quizRepository.getAll();
-        List<GetQuizDTO> quizDtos = new ArrayList<>();
+        //TODO: Implement pagination
+        List<Quiz> quizzes = quizRepository.findAll();
 
-        quizzes.forEach(quizMapper::toQuizDTO);
-
-        return quizDtos;
+        return quizzes.stream()
+                .map(quizMapper::toQuizDTO)
+                .toList();
     }
 
     public CreateQuizResponseDTO createQuiz(CreateQuizDTO quiz) {

@@ -1,19 +1,15 @@
 # web-quiz
 Collaborative web tool for making and solving quizzes, for learning backend development and modern tech integration effectively.
 
-**_Web Quiz Engine with Java_**
- Challenging  
-676 completions  
+### track - Java Backend Developer (Spring Boot) 396 topics  
+**_Web Quiz Engine with Java_**  
+ Challenging
 ~ 54 hours  
-
-Create a collaborative web tool for making and solving quizzes, helping you learn backend development and modern tech integration effectively.
 
 **Provided by**  
 _JetBrains Academy_  
 
-Bartłomiej Błaszczyk  
-track - Java Backend Developer (Spring Boot)
-396 topics
+Bartłomiej Błaszczyk
 
 ## About  
 In the Internet, you can often find sites where you need to answer some questions. It can be educational sites, sites with psychological tests, job search services, or just entertaining sites like web quests. The common thing for them is the ability to answer questions (or quizzes) and then see some results. In this project, you will create a complex web service and learn about REST API, an embedded database, security, and other technologies. If you would like to continue the project, you could develop a web or mobile client for this web service on your own. 

@@ -14,5 +14,5 @@ public record CreateQuizDTO(
         @Size(min = 2, message = "Options must contain at least 2 elements")
         String[] options,
 
-        int[] answers) {
+        int[] answer) {
 }
