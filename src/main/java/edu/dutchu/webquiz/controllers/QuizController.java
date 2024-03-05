@@ -1,14 +1,18 @@
 package edu.dutchu.webquiz.controllers;
 
 
+import edu.dutchu.webquiz.api.model.CreateQuizDTO;
+import edu.dutchu.webquiz.api.model.CreateQuizResponseDTO;
 import edu.dutchu.webquiz.api.model.GetQuizDTO;
-import edu.dutchu.webquiz.api.model.QuizResultDTO;
+import edu.dutchu.webquiz.api.model.QuizSolveResponseDTO;
 import edu.dutchu.webquiz.services.QuizService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/quiz")
+@RequestMapping({"/api/quizzes/", "/api/quizzes"})
 public class QuizController {
     private final QuizService quizService;
 
@@ -17,16 +21,23 @@ public class QuizController {
     }
 
     @GetMapping
-    public ResponseEntity<GetQuizDTO> getQuiz() {
-        GetQuizDTO quiz = quizService.getQuiz();
-        System.out.println(quiz);
-        return ResponseEntity.ok(quiz);
+    public ResponseEntity<List<GetQuizDTO>> getQuizzes() {
+        return ResponseEntity.ok(quizService.getQuizzes());
     }
 
-    @PostMapping
-    public ResponseEntity<QuizResultDTO> solveQuiz(@RequestParam("answer") Long anwser) {
-        QuizResultDTO result = quizService.solveQuiz(anwser);
-        return ResponseEntity.ok(result);
+    @GetMapping("/{id}")
+    public ResponseEntity<GetQuizDTO> getQuizById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(quizService.getQuizById(id));
+    }
+
+    @PostMapping("/{id}/solve")
+    public ResponseEntity<QuizSolveResponseDTO> solveQuiz(@PathVariable("id") Long quizId, @RequestParam("answer") Integer answer) {
+        return ResponseEntity.ok(quizService.solveQuiz(quizId, answer));
+    }
+
+    @PostMapping()
+    public ResponseEntity<CreateQuizResponseDTO> createQuiz(@RequestBody CreateQuizDTO quiz) {
+        return ResponseEntity.ok(quizService.createQuiz(quiz));
     }
 
 }
