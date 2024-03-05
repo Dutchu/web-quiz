@@ -1,6 +1,5 @@
 package edu.dutchu.webquiz.repositories;
 
-
 import edu.dutchu.webquiz.domain.Quiz;
 import org.springframework.stereotype.Repository;
 

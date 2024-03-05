@@ -2,19 +2,16 @@ package edu.dutchu.webquiz.services;
 
 
 import edu.dutchu.webquiz.api.QuizMapper;
-import edu.dutchu.webquiz.api.model.GetQuizDTO;
-import edu.dutchu.webquiz.api.model.CreateQuizDTO;
-import edu.dutchu.webquiz.api.model.CreateQuizResponseDTO;
-import edu.dutchu.webquiz.api.model.QuizSolveResponseDTO;
+import edu.dutchu.webquiz.api.model.*;
 import edu.dutchu.webquiz.domain.Quiz;
 import edu.dutchu.webquiz.exceptions.QuizNotFoundException;
 import edu.dutchu.webquiz.exceptions.WrongAnswerFormatException;
 import edu.dutchu.webquiz.repositories.QuizRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class QuizService {
@@ -26,10 +23,14 @@ public class QuizService {
         this.quizMapper = quizMapper;
     }
 
-    public QuizSolveResponseDTO solveQuiz(Long quizId, Integer answer) {
+    public QuizSolveResponseDTO solveQuiz(Long quizId, SolveQuizDTO answer) {
+
 
         QuizSolveResponseDTO result;
+        IntStream answers;
+        IntStream userAnswers;
         Optional<Quiz> quiz = Optional.ofNullable(quizRepository.getById(quizId));
+
 
         if (answer == null) {
             throw new WrongAnswerFormatException("Answer cannot be null");
@@ -39,13 +40,28 @@ public class QuizService {
             throw new QuizNotFoundException("Quiz not found");
         }
 
-        if (quiz.get().getAnswer().equals(answer)) {
+        if (quiz.get().getAnswers() == null) {
+            answers = IntStream.empty();
+        } else {
+            answers = Arrays.stream(quiz.get().getAnswers());
+        }
+
+        userAnswers = Arrays.stream(answer.answer());
+
+        if (assertIntStreamContains(answers, userAnswers)) {
             result = new QuizSolveResponseDTO(true, "Good Job!");
         } else {
             result = new QuizSolveResponseDTO(false, "Try again!");
         }
         return result;
 
+    }
+
+    private boolean assertIntStreamContains(IntStream answers, IntStream userAnswers) {
+        Set<Integer> answerSet = answers.boxed().collect(Collectors.toSet());
+        Set<Integer> userAnswerSet = userAnswers.boxed().collect(Collectors.toSet());
+        //check if all user answers are EXACTLY the same as the answer set (no more, no less)
+        return userAnswerSet.equals(answerSet);
     }
 
     public GetQuizDTO getQuizById(Long id) {
@@ -63,9 +79,7 @@ public class QuizService {
         List<Quiz> quizzes = quizRepository.getAll();
         List<GetQuizDTO> quizDtos = new ArrayList<>();
 
-        quizzes.forEach(quiz -> {
-            quizDtos.add(quizMapper.toQuizDTO(quiz));
-        });
+        quizzes.forEach(quizMapper::toQuizDTO);
 
         return quizDtos;
     }

@@ -14,9 +14,10 @@ public class QuizMapper {
     }
 
     public Quiz toQuiz(CreateQuizDTO createQuizDTO) {
-        return new Quiz(createQuizDTO.title(), createQuizDTO.text(), createQuizDTO.options(), createQuizDTO.answer());
+        return new Quiz(createQuizDTO.title(), createQuizDTO.text(), createQuizDTO.options(), createQuizDTO.answers());
     }
 
     public CreateQuizResponseDTO toCreateQuizResponseDTO(Quiz quiz) {
         return new CreateQuizResponseDTO(quiz.getTitle(), quiz.getText(), quiz.getOptions(), quiz.getId());
-    }}
+    }
+}
