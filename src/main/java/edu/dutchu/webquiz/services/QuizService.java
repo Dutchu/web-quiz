@@ -3,10 +3,13 @@ package edu.dutchu.webquiz.services;
 
 import edu.dutchu.webquiz.api.QuizMapper;
 import edu.dutchu.webquiz.api.model.*;
+import edu.dutchu.webquiz.domain.AppUser;
 import edu.dutchu.webquiz.domain.Quiz;
 import edu.dutchu.webquiz.exceptions.QuizNotFoundException;
+import edu.dutchu.webquiz.exceptions.UnauthorizedException;
 import edu.dutchu.webquiz.exceptions.WrongAnswerFormatException;
 import edu.dutchu.webquiz.repositories.QuizRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,10 +20,12 @@ import java.util.stream.IntStream;
 public class QuizService {
     private final QuizRepository quizRepository;
     private final QuizMapper quizMapper;
+    private final AppUserService appUserService;
 
-    public QuizService(QuizRepository quizRepository, QuizMapper quizMapper) {
+    public QuizService(QuizRepository quizRepository, QuizMapper quizMapper, AppUserService appUserService) {
         this.quizRepository = quizRepository;
         this.quizMapper = quizMapper;
+        this.appUserService = appUserService;
     }
 
     public QuizSolveResponseDTO solveQuiz(Long quizId, SolveQuizDTO answer) {
@@ -73,9 +78,31 @@ public class QuizService {
                 .toList();
     }
 
-    public CreateQuizResponseDTO createQuiz(CreateQuizDTO quiz) {
+    public CreateQuizResponseDTO createQuiz(CreateQuizDTO quiz, String username) {
         Quiz newQuiz = quizMapper.toQuiz(quiz);
+        AppUser foundUser = appUserService.findUserByEmail(username);
+        newQuiz.setCreatedBy(foundUser);
         Quiz savedQuiz = quizRepository.save(newQuiz);
         return quizMapper.toCreateQuizResponseDTO(savedQuiz);
+    }
+
+    public void deleteQuizById(Long id, String username) {
+        AppUser foundUser = appUserService.findUserByEmail(username);
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
+
+        if (null == quiz.getCreatedBy()) {
+            throw new UnauthorizedException("Quiz is missing createdBy user id!");
+        }
+
+        if (!quiz.getCreatedBy().equals(foundUser)) {
+            throw new UnauthorizedException("User is not authorized to delete this quiz");
+        }
+
+        try {
+            quizRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new QuizNotFoundException(e.getMessage() + " Quiz not found");
+        }
     }
 }

@@ -27,6 +27,9 @@ public class Quiz {
     @ElementCollection(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private final List<Integer> answers = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    private AppUser createdBy;
 
     public Quiz() {
     }
@@ -41,7 +44,12 @@ public class Quiz {
         this.options.addAll(options);
         this.answers.addAll(answers);
     }
-
+    public void setCreatedBy(AppUser user) {
+        this.createdBy = user;
+    }
+    public AppUser getCreatedBy() {
+        return this.createdBy;
+    }
     public Long getId() {
         return id;
     }
