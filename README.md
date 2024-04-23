@@ -16,6 +16,118 @@ In the Internet, you can often find sites where you need to answer some question
 
 This project allows you to practice and strengthen your coding skills, helping you get ready for more advanced tasks ahead.
 
+# API Backend Service README.md
+
+## Objectives
+
+1. **Register New User**: 
+    - Create the `POST /api/register` endpoint. To register a new user, the client needs to send a JSON to this endpoint in the following format:
+
+        ```json
+        {
+          "email": "<username>@<domain>.<extension>",
+          "password": "<string, at least 5 characters long>"
+        }
+        ```
+
+    - The service returns a `200 (OK)` status code if the registration has been completed successfully.
+    - If the email is already taken by another user, the service will return a `400 (BAD REQUEST)` status code.
+    - Additional restrictions to the format of user credentials:
+        - The email must have a valid format (with @ and .).
+        - The password must have at least five characters.
+    - If any of them is not satisfied, the service must also return a `400 (BAD REQUEST)` status code.
+
+2. **Delete Quiz**:
+    - Create the `DELETE` request to `/api/quizzes/{id}` to allow a user to delete their quiz.
+    - If the operation was successful, the service returns a `204 (NO CONTENT)` status code without any content.
+    - If the specified quiz does not exist, the server returns `404 (NOT FOUND)`. If the specified user is not the author of this quiz, the response is the `403 (FORBIDDEN)` status code.
+
+## Additional Ideas
+If you would like your service to support more operations, add `PUT` or `PATCH` to update existing quizzes in a similar way as `DELETE`. Our tests will not verify these operations.
+
+## Examples
+
+1. **Registering a New User with a Valid Request Body**:
+
+    **Request**: `POST /api/register`
+    
+    **Request body**:
+    ```json
+    {
+      "email": "test@mail.org",
+      "password": "strongpassword"
+    }
+    ```
+    
+    **Response**: `200 OK`
+
+2. **Registering a New User with a Valid Request Body but the Email Address is Already Taken**:
+
+    **Request**: `POST /api/register`
+    
+    **Request body**:
+    ```json
+    {
+      "email": "test@mail.org",
+      "password": "strongpassword"
+    }
+    ```
+    
+    **Response**: `400 BAD REQUEST`
+
+3. **Registering a New User with an Invalid Email**:
+
+    **Request**: `POST /api/register`
+    
+    **Request body**:
+    ```json
+    {
+      "email": "test@mailorg",
+      "password": "strongpassword"
+    }
+    ```
+    
+    **Response**: `400 BAD REQUEST`
+
+4. **Registering a New User with a Too Short Password**:
+
+    **Request**: `POST /api/register`
+    
+    **Request body**:
+    ```json
+    {
+      "email": "test@mail.org",
+      "password": "123"
+    }
+    ```
+    
+    **Response**: `400 BAD REQUEST`
+
+5. **Requesting a List of Quizzes without Providing a Valid Authentication**:
+
+    **Request**: `GET /api/quizzes`
+    
+    **Response**: `401 UNAUTHORIZED`
+
+6. **Deleting a Quiz Created by the Same User, Providing a Valid Authentication: email=test@mail.org and password=strongpassword**:
+
+    **Request**: `DELETE /api/quizzes/2`
+    
+    **Response**: `204 NO CONTENT`
+
+7. **Deleting a Non-existing Quiz, Providing a Valid Authentication: email=test@mail.org and password=strongpassword**:
+
+    **Request**: `DELETE /api/quizzes/20`
+    
+    **Response**: `404 NOT FOUND`
+
+8. **Deleting a Quiz Created by Another User, Providing a Valid Authentication: email=test@mail.org and password=strongpassword**:
+
+    **Request**: `DELETE /api/quizzes/5`
+    
+    **Response**: `403 FORBIDDEN`
+
+
 Once you choose a project, we'll provide you with a study plan that includes all the necessary topics from your track to get it built. Here’s what awaits you:  
 + Create a basic API to accept answers for a single quiz.
 + Method "main"
